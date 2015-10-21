@@ -1,4 +1,4 @@
-EML(RFC5322) PARSER
+#EML(RFC5322) PARSER
 
 *This aims to be a more complete implementation of go's net/mail package.*
 
