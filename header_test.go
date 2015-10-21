@@ -1,11 +1,11 @@
-package mail
+package eml
 
 import (
 	"reflect"
 	"testing"
 )
 
-type parseAddressListTest struct{
+type parseAddressListTest struct {
 	ins []byte
 	out []Address
 }

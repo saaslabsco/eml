@@ -1,4 +1,4 @@
-package mail
+package eml
 
 import (
 	"reflect"
@@ -13,7 +13,7 @@ type parseBodyTest struct {
 
 var parseBodyTests = []parseBodyTest{
 	parseBodyTest{
-		ct: "text/plain",
+		ct:   "text/plain",
 		body: []byte(`This is some text.`),
 		rps: []Part{
 			Part{"text/plain", []byte("This is some text."), nil},
@@ -70,4 +70,3 @@ func TestParseBody(t *testing.T) {
 		}
 	}
 }
-

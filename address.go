@@ -1,6 +1,6 @@
 // Address parsing
 
-package mail
+package eml
 
 import (
 	"errors"
@@ -10,7 +10,7 @@ import (
 
 type Address interface {
 	String() string
-	Name()   string
+	Name() string
 }
 
 type MailboxAddr struct {
@@ -79,7 +79,7 @@ func parseAddress(toks []token) (Address, error) {
 					return nil, err
 				}
 				ga.boxes = append(ga.boxes, ma)
-				last = i+1
+				last = i + 1
 			}
 			something = true
 		}

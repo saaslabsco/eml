@@ -1,4 +1,4 @@
-package mail
+package eml
 
 import (
 	"reflect"
@@ -142,7 +142,7 @@ var parseTests = []parseTest{
 		Message{
 			HeaderInfo: HeaderInfo{
 				FullHeaders: []Header{},
-				OptHeaders: []Header{},
+				OptHeaders:  []Header{},
 			},
 			Text: "\r\n",
 		},
@@ -155,8 +155,8 @@ G'day, mate.
 		Message{
 			HeaderInfo: HeaderInfo{
 				FullHeaders: []Header{Header{"Subject", "Hello, world"}},
-				OptHeaders: []Header{},
-				Subject: "Hello, world",
+				OptHeaders:  []Header{},
+				Subject:     "Hello, world",
 			},
 			Text: "G'day, mate.\r\n",
 		},

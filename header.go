@@ -1,6 +1,6 @@
 // Header parsing functionality.
 
-package mail
+package eml
 
 import (
 	"strings"
@@ -11,7 +11,7 @@ func split(ts []token, s token) [][]token {
 	for i, t := range ts {
 		if string(t) == string(s) {
 			r = append(r, ts[l:i])
-			l = i+1
+			l = i + 1
 		}
 	}
 	if l != len(ts) {
@@ -44,4 +44,3 @@ func decodeRFC2047(word string) string {
 	}
 	return word
 }
-

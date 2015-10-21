@@ -2,13 +2,17 @@
 // in RFC5322.
 //
 // We allow both CRLF and LF to be used in the input, possibly mixed.
-package mail
+package eml
 
 import (
 	"bytes"
 	"crypto/sha1"
 	"encoding/base64"
 	"errors"
+	"fmt"
+	"io/ioutil"
+	"mime/quotedprintable"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -41,16 +45,22 @@ type HeaderInfo struct {
 	Keywords    []string
 	ContentType string
 
-	InReply     []string
-	References  []string
+	InReply    []string
+	References []string
 }
 
 type Message struct {
 	HeaderInfo
+	Body        []byte
+	Text        string
+	Html        string
+	Attachments []Attachment
+	Parts       []Part
+}
 
-	Text  string
-	Body  []byte
-	Parts []Part
+type Attachment struct {
+	Filename string
+	Data     []byte
 }
 
 type Header struct {
@@ -81,7 +91,8 @@ func Process(r RawMessage) (m Message, e error) {
 		case `In-Reply-To`:
 			ids := strings.Fields(string(rh.Value))
 			for _, id := range ids {
-				m.InReply = append(m.InReply, strings.Trim(id, `<> `)) }
+				m.InReply = append(m.InReply, strings.Trim(id, `<> `))
+			}
 		case `References`:
 			ids := strings.Fields(string(rh.Value))
 			for _, id := range ids {
@@ -123,7 +134,40 @@ func Process(r RawMessage) (m Message, e error) {
 
 	if m.ContentType != `` {
 		parts, er := parseBody(m.ContentType, r.Body)
-		if er != nil { e = er; return }
+		if er != nil {
+			e = er
+			return
+		}
+
+		for _, part := range parts {
+			switch {
+			case strings.Contains(part.Type, "text/plain"):
+				m.Text = string(part.Data)
+			case strings.Contains(part.Type, "text/html"):
+				m.Html = string(part.Data)
+			default:
+				if cd, ok := part.Headers["Content-Disposition"]; ok {
+					if strings.Contains(cd[0], "attachment") {
+						filename := regexp.MustCompile("(?msi)name=\"(.*?)\"").FindString(cd[0])
+
+						if encoding, ok := part.Headers["Content-Transfer-Encoding"]; ok {
+							switch strings.ToLower(encoding[0]) {
+							case "base64":
+								part.Data, er = base64.StdEncoding.DecodeString(string(part.Data))
+								if er != nil {
+									fmt.Println(er, "failed decode base64")
+								}
+							case "quoted-printable":
+								part.Data, _ = ioutil.ReadAll(quotedprintable.NewReader(bytes.NewReader(part.Data)))
+							}
+						}
+						m.Attachments = append(m.Attachments, Attachment{filename, part.Data})
+
+					}
+				}
+			}
+		}
+
 		m.Parts = parts
 		m.ContentType = parts[0].Type
 		m.Text = string(parts[0].Data)
