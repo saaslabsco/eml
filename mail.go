@@ -148,7 +148,11 @@ func Process(r RawMessage) (m Message, e error) {
 			default:
 				if cd, ok := part.Headers["Content-Disposition"]; ok {
 					if strings.Contains(cd[0], "attachment") {
-						filename := regexp.MustCompile("(?msi)name=\"(.*?)\"").FindString(cd[0])
+						filename := regexp.MustCompile("(?msi)name=\"(.*?)\"").FindStringSubmatch(cd[0]) //.FindString(cd[0])
+						if len(filename) < 2 {
+							fmt.Println("failed get filename from header content-disposition")
+							break
+						}
 
 						if encoding, ok := part.Headers["Content-Transfer-Encoding"]; ok {
 							switch strings.ToLower(encoding[0]) {
@@ -161,7 +165,7 @@ func Process(r RawMessage) (m Message, e error) {
 								part.Data, _ = ioutil.ReadAll(quotedprintable.NewReader(bytes.NewReader(part.Data)))
 							}
 						}
-						m.Attachments = append(m.Attachments, Attachment{filename, part.Data})
+						m.Attachments = append(m.Attachments, Attachment{filename[1], part.Data})
 
 					}
 				}
