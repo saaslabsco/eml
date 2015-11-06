@@ -15,6 +15,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/sg3des/eml/decoder"
 )
 
 var benc = base64.URLEncoding
@@ -113,7 +115,11 @@ func Process(r RawMessage) (m Message, e error) {
 		case `Bcc`:
 			m.Bcc, e = parseAddressList(rh.Value)
 		case `Subject`:
-			m.Subject = string(rh.Value)
+			subject, err := decoder.Parse(rh.Value)
+			if err != nil {
+				fmt.Println("Failed decode subject", err)
+			}
+			m.Subject = string(subject)
 		case `Comments`:
 			m.Comments = append(m.Comments, string(rh.Value))
 		case `Keywords`:
@@ -142,9 +148,22 @@ func Process(r RawMessage) (m Message, e error) {
 		for _, part := range parts {
 			switch {
 			case strings.Contains(part.Type, "text/plain"):
-				m.Text = string(part.Data)
+
+				data, err := decoder.UTF8(part.Charset, part.Data)
+				if err != nil {
+					m.Text = string(part.Data)
+				} else {
+					m.Text = string(data)
+				}
 			case strings.Contains(part.Type, "text/html"):
-				m.Html = string(part.Data)
+
+				data, err := decoder.UTF8(part.Charset, part.Data)
+				if err != nil {
+					m.Html = string(part.Data)
+				} else {
+					m.Html = string(data)
+				}
+
 			default:
 				if cd, ok := part.Headers["Content-Disposition"]; ok {
 					if strings.Contains(cd[0], "attachment") {
@@ -152,6 +171,13 @@ func Process(r RawMessage) (m Message, e error) {
 						if len(filename) < 2 {
 							fmt.Println("failed get filename from header content-disposition")
 							break
+						}
+
+						dfilename, err := decoder.Parse([]byte(filename))
+						if err != nil {
+							fmt.Println("Failed decode filename of attachment", err)
+						} else {
+							filename = dfilename
 						}
 
 						if encoding, ok := part.Headers["Content-Transfer-Encoding"]; ok {

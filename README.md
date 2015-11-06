@@ -6,3 +6,5 @@
 This is parser of message in rfc5322(.eml)
 
 Split message on all headers(subject,from,to,cc,date,et.c.), body text, body html, and attachments(decodes it)
+
+add decoder for subject and attachments file name

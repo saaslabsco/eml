@@ -9,10 +9,12 @@ import (
 	"io/ioutil"
 	"mime"
 	"mime/multipart"
+	"regexp"
 )
 
 type Part struct {
 	Type    string
+	Charset string
 	Data    []byte
 	Headers map[string][]string
 }
@@ -46,7 +48,12 @@ func parseBody(ct string, body []byte) (parts []Part, err error) {
 		if err == nil {
 			parts = append(parts, subparts...)
 		} else {
-			part := Part{p.Header["Content-Type"][0], data, p.Header}
+			contenttype := regexp.MustCompile("(?is)charset=(.*)").FindStringSubmatch(p.Header["Content-Type"][0])
+			charset := "UTF-8"
+			if len(contenttype) > 1 {
+				charset = contenttype[1]
+			}
+			part := Part{p.Header["Content-Type"][0], charset, data, p.Header}
 			parts = append(parts, part)
 		}
 		p, err = r.NextPart()
