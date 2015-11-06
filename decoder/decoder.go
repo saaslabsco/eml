@@ -2,6 +2,7 @@ package decoder
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"regexp"
 	"strings"
@@ -28,9 +29,9 @@ func UTF8(cs string, data []byte) ([]byte, error) {
 
 func Parse(bstr []byte) ([]byte, error) {
 	var err error
-
 	strs := regexp.MustCompile("^=\\?(.*?)\\?(.*?)\\?(.*)\\?=$").FindAllStringSubmatch(string(bstr), -1)
-	if len(strs[0]) == 4 {
+
+	if len(strs) > 0 && len(strs[0]) == 4 {
 		c := strs[0][1]
 		e := strs[0][2]
 		dstr := strs[0][3]
