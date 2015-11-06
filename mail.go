@@ -173,11 +173,11 @@ func Process(r RawMessage) (m Message, e error) {
 							break
 						}
 
-						dfilename, err := decoder.Parse([]byte(filename))
+						dfilename, err := decoder.Parse([]byte(filename[1]))
 						if err != nil {
 							fmt.Println("Failed decode filename of attachment", err)
 						} else {
-							filename = dfilename
+							filename[1] = string(dfilename)
 						}
 
 						if encoding, ok := part.Headers["Content-Transfer-Encoding"]; ok {
