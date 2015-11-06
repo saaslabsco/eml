@@ -2,7 +2,6 @@ package decoder
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"regexp"
 	"strings"
