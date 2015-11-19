@@ -16,7 +16,7 @@ var parseBodyTests = []parseBodyTest{
 		ct:   "text/plain",
 		body: []byte(`This is some text.`),
 		rps: []Part{
-			Part{"text/plain", []byte("This is some text."), nil},
+			Part{"text/plain", "UTF-8", []byte("This is some text."), nil},
 		},
 	},
 	parseBodyTest{
@@ -35,6 +35,7 @@ Some other text.
 		rps: []Part{
 			Part{
 				"text/plain; charset=ISO-8859-1",
+				"ISO-8859-1",
 				[]byte("Some text."),
 				map[string][]string{
 					"Content-Type": []string{
@@ -44,6 +45,7 @@ Some other text.
 			},
 			Part{
 				"text/html; charset=ISO-8859-1",
+				"ISO-8859-1",
 				[]byte("Some other text."),
 				map[string][]string{
 					"Content-Type": []string{
@@ -65,7 +67,7 @@ func TestParseBody(t *testing.T) {
 			t.Errorf("parseBody returned error for %#v: %#v", pt, e)
 		} else if !reflect.DeepEqual(parts, pt.rps) {
 			t.Errorf(
-				"parseBody: incorrect result for %#V: \n%#V\nvs.\n%#V",
+				"parseBody: incorrect result for %#V: \n%#v\nvs.\n%#v",
 				pt, parts, pt.rps)
 		}
 	}
