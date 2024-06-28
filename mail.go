@@ -202,11 +202,6 @@ func Process(r RawMessage) (m Message, e error) {
 								contentId = cid[0]
 							}
 						}
-						if cid, ok := part.Headers["Content-Disposition"]; ok {
-							if len(cid) >= 1 {
-								contentId = cid[0]
-							}
-						}
 						m.Attachments = append(m.Attachments, Attachment{
 							Filename:    filename[1],
 							Data:        part.Data,
