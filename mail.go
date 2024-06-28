@@ -10,13 +10,13 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"mime/quotedprintable"
 	"regexp"
 	"strings"
 	"time"
 
-	"github.com/sg3des/eml/decoder"
+	"github.com/saaslabsco/eml/decoder"
 )
 
 var benc = base64.URLEncoding
@@ -61,8 +61,12 @@ type Message struct {
 }
 
 type Attachment struct {
-	Filename string
-	Data     []byte
+	Filename           string
+	Data               []byte
+	ContentId          string
+	ContentDisposition string
+	Part               *Part
+	ContentType        string
 }
 
 type Header struct {
@@ -188,11 +192,29 @@ func Process(r RawMessage) (m Message, e error) {
 									fmt.Println(er, "failed decode base64")
 								}
 							case "quoted-printable":
-								part.Data, _ = ioutil.ReadAll(quotedprintable.NewReader(bytes.NewReader(part.Data)))
+								part.Data, _ = io.ReadAll(quotedprintable.NewReader(bytes.NewReader(part.Data)))
 							}
 						}
-						m.Attachments = append(m.Attachments, Attachment{filename[1], part.Data})
 
+						var contentId string
+						if cid, ok := part.Headers["Content-Id"]; ok {
+							if len(cid) >= 1 {
+								contentId = cid[0]
+							}
+						}
+						if cid, ok := part.Headers["Content-Disposition"]; ok {
+							if len(cid) >= 1 {
+								contentId = cid[0]
+							}
+						}
+						m.Attachments = append(m.Attachments, Attachment{
+							Filename:    filename[1],
+							Data:        part.Data,
+							ContentType: part.Type,
+							Part:        &part,
+							ContentId:   contentId,
+							ContentDisposition: cd[0],
+						})
 					}
 				}
 			}

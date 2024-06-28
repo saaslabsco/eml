@@ -18,7 +18,7 @@ type parseRawTest struct {
 }
 
 var parseRawTests = []parseRawTest{
-	parseRawTest{
+	{
 		msg: crlf(`
 `),
 		ret: RawMessage{
@@ -26,7 +26,7 @@ var parseRawTests = []parseRawTest{
 			Body:       crlf(""),
 		},
 	},
-	parseRawTest{
+	{
 		msg: crlf(`
 ab
 c
@@ -38,16 +38,16 @@ c
 `),
 		},
 	},
-	parseRawTest{
+	{
 		msg: crlf(`a: b
 
 `),
 		ret: RawMessage{
-			RawHeaders: []RawHeader{RawHeader{crlf("a"), crlf("b")}},
+			RawHeaders: []RawHeader{{crlf("a"), crlf("b")}},
 			Body:       crlf(""),
 		},
 	},
-	parseRawTest{
+	{
 		msg: crlf(`a: b
 c: def
  hi
@@ -55,13 +55,13 @@ c: def
 `),
 		ret: RawMessage{
 			RawHeaders: []RawHeader{
-				RawHeader{crlf("a"), crlf("b")},
-				RawHeader{crlf("c"), crlf("def hi")},
+				{crlf("a"), crlf("b")},
+				{crlf("c"), crlf("def hi")},
 			},
 			Body: crlf(``),
 		},
 	},
-	parseRawTest{
+	{
 		msg: crlf(`a: b
 c: d fdsa
 ef:  as
@@ -70,15 +70,15 @@ hello, world
 `),
 		ret: RawMessage{
 			RawHeaders: []RawHeader{
-				RawHeader{crlf("a"), crlf("b")},
-				RawHeader{crlf("c"), crlf("d fdsa")},
-				RawHeader{crlf("ef"), crlf("as")},
+				{crlf("a"), crlf("b")},
+				{crlf("c"), crlf("d fdsa")},
+				{crlf("ef"), crlf("as")},
 			},
 			Body: crlf(`hello, world
 `),
 		},
 	},
-	parseRawTest{
+	{
 		msg: []byte(`a: b
 c: d fdsa
 ef:  as
@@ -87,9 +87,9 @@ hello, world
 `),
 		ret: RawMessage{
 			RawHeaders: []RawHeader{
-				RawHeader{[]byte("a"), []byte("b")},
-				RawHeader{[]byte("c"), []byte("d fdsa")},
-				RawHeader{[]byte("ef"), []byte("as")},
+				{[]byte("a"), []byte("b")},
+				{[]byte("c"), []byte("d fdsa")},
+				{[]byte("ef"), []byte("as")},
 			},
 			Body: []byte(`hello, world
 `),
@@ -135,7 +135,7 @@ type parseTest struct {
 }
 
 var parseTests = []parseTest{
-	parseTest{
+	{
 		crlf(`
 
 `),
@@ -147,14 +147,14 @@ var parseTests = []parseTest{
 			Text: "\r\n",
 		},
 	},
-	parseTest{
+	{
 		crlf(`Subject: Hello, world
 
 G'day, mate.
 `),
 		Message{
 			HeaderInfo: HeaderInfo{
-				FullHeaders: []Header{Header{"Subject", "Hello, world"}},
+				FullHeaders: []Header{{"Subject", "Hello, world"}},
 				OptHeaders:  []Header{},
 				Subject:     "Hello, world",
 			},

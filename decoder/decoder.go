@@ -2,7 +2,7 @@ package decoder
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"regexp"
 	"strings"
 
@@ -22,7 +22,7 @@ func UTF8(cs string, data []byte) ([]byte, error) {
 		return []byte{}, err
 	}
 
-	return ioutil.ReadAll(r)
+	return io.ReadAll(r)
 
 }
 
@@ -50,7 +50,7 @@ func Decode(e string, bstr []byte) ([]byte, error) {
 	var err error
 	switch strings.ToUpper(e) {
 	case "Q":
-		bstr, err = ioutil.ReadAll(quotedprintable.NewReader(bytes.NewReader(bstr)))
+		bstr, err = io.ReadAll(quotedprintable.NewReader(bytes.NewReader(bstr)))
 	case "B":
 		bstr, err = base64.StdEncoding.DecodeString(string(bstr))
 	default:
