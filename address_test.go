@@ -22,6 +22,10 @@ var parseAddressTests = []parseAddressTest{
 		MailboxAddr{`Mary Smith`, `mary`, `x.test`},
 	},
 	{
+		`"Mary Smith <mary@x.test>"`,
+		MailboxAddr{`Mary Smith`, `mary`, `x.test`},
+	},
+	{
 		`jdoe@example.org`,
 		MailboxAddr{``, `jdoe`, `example.org`},
 	},

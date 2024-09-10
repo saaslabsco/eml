@@ -5,6 +5,7 @@ package eml
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"strings"
 )
 
@@ -56,7 +57,15 @@ func (ga GroupAddr) Email() string {
 }
 
 func ParseAddress(bs []byte) (Address, error) {
-	toks, err := tokenize(bs)
+	matched, err := regexp.Match("^\".+\"$", bs)
+	bsString := string(bs)
+	if err != nil {
+		panic(err)
+	}
+	if matched {
+		bsString = strings.Trim(bsString, "\"")
+	}
+	toks, err := tokenize([]byte(bsString))
 	if err != nil {
 		return nil, err
 	}
